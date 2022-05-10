@@ -9,18 +9,15 @@ namespace AF
 {
     
 
-    public class AnimateHandler : MonoBehaviour
+    public class AnimateHandler : AnimationManager
     {
         PlayerManager playerManager;
-        public Animator anim;
         InputHandler inputHandler;
         PlayerLocomotion playerLocomotion;
 
         int vertical;
         int horizontal;
         public bool canRotate;
-
-        public float crossfade = 0.2f;
         
 
         public void Initialize()
@@ -100,14 +97,6 @@ namespace AF
             anim.SetFloat(horizontal , h , 0.1f , Time.deltaTime);
         }
 
-        public void PlayTargetAnimation(string targetAnim , bool isInteracting)
-        {
-            // Debug.Log("Target Animation: " + targetAnim);
-            anim.applyRootMotion = isInteracting;
-            anim.CrossFade(targetAnim , crossfade);
-            anim.SetBool("IsInteracting" , isInteracting);
-        }
-        
         public void CanRotate()
         {
             canRotate = true;

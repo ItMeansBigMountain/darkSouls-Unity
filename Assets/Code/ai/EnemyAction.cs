@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
 namespace AF
 {
-
-    public class EnemyManager : CharacterManager
+    public class EnemyAction : ScriptableObject
     {
-
-
+        public string actionAnimation;
+        
     }
 
-
-
 }
-
 

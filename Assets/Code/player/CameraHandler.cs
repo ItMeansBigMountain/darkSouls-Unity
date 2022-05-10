@@ -19,7 +19,7 @@ namespace AF
 
         public LayerMask ignoreLayers;
         public LayerMask enviromentLayer;
-        
+
         public float lookspeed = 0.1f;
         public float followspeed = 0.1f;
         public float pivotspeed = 0.03f;
@@ -39,7 +39,6 @@ namespace AF
 
         // LOCK ON 
         public Transform nearestLockOnTarget;
-        public float maximumLockOnDistance = 30f;
         List<CharacterManager> availableTargets;
         InputHandler inputHandler;
         PlayerManager playerManager;
@@ -48,7 +47,7 @@ namespace AF
         public Transform rightLockTarget;
         public float lockedPivotPosition = 2.25f;
         public float unlockedPivotPosition = 1.65f;
-
+        PlayerStats playerStats;
 
 
 
@@ -57,6 +56,7 @@ namespace AF
             inputHandler = FindObjectOfType<InputHandler>();
             playerManager = FindObjectOfType<PlayerManager>();
             targetTranfsorm = FindObjectOfType<PlayerManager>().transform;
+            playerStats = FindObjectOfType<PlayerStats>();
 
             availableTargets = new List<CharacterManager>();
 
@@ -176,8 +176,8 @@ namespace AF
 
                     if (
                         character.transform.root != targetTranfsorm.transform.root
-                    && viewableAngle > -75 && viewableAngle < 75
-                    && distanceFromTarget <= maximumLockOnDistance
+                    && viewableAngle > (-1 * playerStats.angleThreashhold) && viewableAngle < playerStats.angleThreashhold
+                    && distanceFromTarget <= playerStats.maximumLockOnDistance
                     )
                     {
                         if (Physics.Linecast(playerManager.lockOnTransform.position, character.lockOnTransform.position, out hit))
@@ -193,7 +193,7 @@ namespace AF
                                 availableTargets.Add(character);
                             }
                         }
-                        
+
                     }
 
                 }

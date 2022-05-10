@@ -6,17 +6,13 @@ using UnityEngine;
 namespace AF
 {
 
-    public class PlayerStats : MonoBehaviour
+    public class PlayerStats : CharacterStats
     {
 
-        public int healthLevel = 10;
-        public int maxHealth;
-        public int CurrentHealth;
 
-        public int staminaLevel = 5;
-        public float currentStamina;
-        public int maxStamina;
-
+        // LOCK ON
+        public float maximumLockOnDistance = 30f;
+        public float angleThreashhold = 75f;
 
         public HealthBar healthBar;
         public StaminaBar staminaBar;
@@ -29,18 +25,24 @@ namespace AF
         {
             animatorHandler = GetComponentInChildren<AnimateHandler>();
         }
+
+
+
+
+
+
         void Start()
         {
-                // setting hp
-                maxHealth = SetMaxHealth_FromHealthLevel();
-                CurrentHealth = maxHealth;
-                healthBar.SetMaxHealth(maxHealth); 
+            // setting hp
+            maxHealth = SetMaxHealth_FromHealthLevel();
+            CurrentHealth = maxHealth;
+            healthBar.SetMaxHealth(maxHealth);
 
-                // setting stamina
-                maxStamina = SetMaxStamina_FromStaminaLevel();
-                currentStamina = maxStamina;
-                staminaBar.SetMaxStamina(maxStamina); 
-                
+            // setting stamina
+            maxStamina = SetMaxStamina_FromStaminaLevel();
+            currentStamina = maxStamina;
+            staminaBar.SetMaxStamina(maxStamina);
+
 
         }
 
@@ -66,12 +68,12 @@ namespace AF
             CurrentHealth = CurrentHealth - damage;
             healthBar.SetCurrentHealth(CurrentHealth);
 
-            animatorHandler.PlayTargetAnimation("Damage_01" , true);
+            animatorHandler.PlayTargetAnimation("Damage_01", true);
 
-            if(CurrentHealth <= 0)
+            if (CurrentHealth <= 0)
             {
                 CurrentHealth = 0;
-                animatorHandler.PlayTargetAnimation("Death_01" , true);
+                animatorHandler.PlayTargetAnimation("Death_01", true);
                 //HANDLE PLAYER DEATH
             }
 
@@ -80,7 +82,7 @@ namespace AF
         // STAMINA DAMAGE
         public void TakeStaminaDamage(float damage)
         {
-            currentStamina = currentStamina - damage/2;
+            currentStamina = currentStamina - damage / 2;
             staminaBar.SetCurrentStamina(currentStamina);
         }
 
