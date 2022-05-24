@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 namespace AF
@@ -8,23 +9,36 @@ namespace AF
 
     public class EnemyManager : CharacterManager
     {
-        public EnemyAttackAction[] enemyAttacks;
-        public EnemyAttackAction currentAttack;
+        // public EnemyAttackAction[] enemyAttacks;
+        // public EnemyAttackAction currentAttack;
 
-
+        public State currentState;
 
         enemyLocomotion enemyLocomotionManager;
         EnemyAnimatorManager enemyAnimatorManager;
+        EnemyStats enemyStats;
+
+        public NavMeshAgent navMeshAgent;
+        public CharacterStats currentTarget;
+        public Rigidbody enemyRigidBody;
+
+
+        public float distanceFromTarget;
+        public float rotationSpeed = 15;
+        public float maximumAttackRange = 1.5f;
+
         public bool isPreformingAction;
+
+
 
 
         [Header("A.I Settings")]
         public float detectionRadius = 20;
         public float maximumDetectionAngle = 50;
         public float minimumDetectionAngle = -50;
-
-
+        public float viewableAngle;
         public float currentRecoveryTime = 0;
+
 
 
 
@@ -33,46 +47,53 @@ namespace AF
         {
             enemyLocomotionManager = GetComponent<enemyLocomotion>();
             enemyAnimatorManager = GetComponentInChildren<EnemyAnimatorManager>();
+            enemyStats = GetComponent<EnemyStats>();
+            navMeshAgent = GetComponentInChildren<NavMeshAgent>();
+            enemyRigidBody = GetComponent<Rigidbody>();
+
+            navMeshAgent.enabled = false;
         }
 
-
-
-
+        public void Start()
+        {
+            enemyRigidBody.isKinematic = false;
+        }
 
         private void Update()
         {
             HandleRecoveryTime();
         }
 
-
         private void FixedUpdate()
         {
-            HandleCurrentAction();
+            HandleStateMachine();
         }
 
 
 
 
-        private void HandleCurrentAction()
-        {
-            if (enemyLocomotionManager.currentTarget != null)
-            {
-                enemyLocomotionManager.distanceFromTarget = Vector3.Distance(enemyLocomotionManager.currentTarget.transform.position, transform.position);
-            }
 
-            if (enemyLocomotionManager.currentTarget == null)
+
+
+
+
+
+        private void HandleStateMachine()
+        {
+            if (currentState != null)
             {
-                enemyLocomotionManager.handleDetection();
+                State nextState = currentState.Tick(this, enemyStats, enemyAnimatorManager);
+
+                if (nextState != null)
+                {
+                    SwitchToNextState(nextState);
+                }
             }
-            else if (enemyLocomotionManager.distanceFromTarget > enemyLocomotionManager.stoppingDistance)
-            {
-                enemyLocomotionManager.HandleMoveToTarget();
-            }
-            else if (enemyLocomotionManager.distanceFromTarget <= enemyLocomotionManager.stoppingDistance)
-            {
-                enemyLocomotionManager.navMeshAgent.enabled = false;
-                attackTarget();
-            }
+        }
+
+        private void SwitchToNextState(State state)
+        {
+            currentState = state;
         }
 
         private void HandleRecoveryTime()
@@ -89,81 +110,6 @@ namespace AF
                 }
             }
         }
-
-
-        private void GetNewAttack()
-        {
-            Vector3 targetDirection = enemyLocomotionManager.currentTarget.transform.position - transform.position;
-            float viewableAngle = Vector3.Angle(targetDirection, transform.forward);
-            enemyLocomotionManager.distanceFromTarget = Vector3.Distance(enemyLocomotionManager.currentTarget.transform.position, transform.position);
-
-            int maxScore = 0;
-
-            for (int i = 0; i < enemyAttacks.Length; i++)
-            {
-                EnemyAttackAction enemyAttackAction = enemyAttacks[i];
-
-                if (enemyLocomotionManager.distanceFromTarget <= enemyAttackAction.maximumDistanceNeededToAttack
-                && enemyLocomotionManager.distanceFromTarget >= enemyAttackAction.minimumDistanceNeededToAttack)
-                {
-                    if (viewableAngle <= enemyAttackAction.maximumAttackAngle
-                    && viewableAngle >= enemyAttackAction.minimumAttackAngle)
-                    {
-                        maxScore += enemyAttackAction.attackScore;
-                    }
-                }
-            }
-
-            int randomValue = Random.Range(0, maxScore);
-            int tempScore = 0;
-            for (int i = 0; i < enemyAttacks.Length; i++)
-            {
-                EnemyAttackAction enemyAttackAction = enemyAttacks[i];
-
-                if (enemyLocomotionManager.distanceFromTarget <= enemyAttackAction.maximumDistanceNeededToAttack
-                && enemyLocomotionManager.distanceFromTarget >= enemyAttackAction.minimumDistanceNeededToAttack)
-                {
-                    if (viewableAngle <= enemyAttackAction.maximumAttackAngle
-                    && viewableAngle >= enemyAttackAction.minimumAttackAngle)
-                    {
-                        if (currentAttack != null) return; // check if already attacking
-
-                        tempScore += enemyAttackAction.attackScore;
-
-                        if (tempScore > randomValue)
-                        {
-                            currentAttack = enemyAttackAction;
-                        }
-                    }
-                }
-            }
-
-
-        }
-
-
-
-        private void attackTarget()
-        {
-            if (isPreformingAction) return;
-
-
-            if (currentAttack == null)
-            {
-                GetNewAttack();
-            }
-            else
-            {
-                isPreformingAction = true;
-                currentRecoveryTime = currentAttack.recoveryTime;
-                enemyAnimatorManager.PlayTargetAnimation(currentAttack.actionAnimation, true);
-                currentAttack = null;
-            }
-
-        }
-
-
-
 
     }
 
