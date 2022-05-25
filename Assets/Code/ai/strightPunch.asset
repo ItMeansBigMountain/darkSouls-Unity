@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionAnimation: StraightPunch
   attackScore: 3
-  recoveryTime: 0.5
+  recoveryTime: 0.7
   maximumAttackAngle: 35
   minimumAttackAngle: -35
   maximumDistanceNeededToAttack: 3

@@ -9,9 +9,6 @@ namespace AF
 
     public class EnemyManager : CharacterManager
     {
-        // public EnemyAttackAction[] enemyAttacks;
-        // public EnemyAttackAction currentAttack;
-
         public State currentState;
 
         enemyLocomotion enemyLocomotionManager;
@@ -23,11 +20,11 @@ namespace AF
         public Rigidbody enemyRigidBody;
 
 
-        public float distanceFromTarget;
-        public float rotationSpeed = 15;
+        public float rotationSpeed = 50;
         public float maximumAttackRange = 1.5f;
 
         public bool isPreformingAction;
+        public bool isInteracting;
 
 
 
@@ -36,7 +33,6 @@ namespace AF
         public float detectionRadius = 20;
         public float maximumDetectionAngle = 50;
         public float minimumDetectionAngle = -50;
-        public float viewableAngle;
         public float currentRecoveryTime = 0;
 
 
@@ -62,19 +58,13 @@ namespace AF
         private void Update()
         {
             HandleRecoveryTime();
+            isInteracting = enemyAnimatorManager.anim.GetBool("IsInteracting");
         }
 
         private void FixedUpdate()
         {
             HandleStateMachine();
         }
-
-
-
-
-
-
-
 
 
 
